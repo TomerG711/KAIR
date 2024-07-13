@@ -4,8 +4,6 @@ import torchvision
 from torch.nn import functional as F
 from torch import autograd as autograd
 
-from models.skip import skip
-
 """
 Sequential(
       (0): Conv2d(3, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
@@ -294,18 +292,13 @@ def gradient_penalty_loss(discriminator, real_data, fake_data, weight=None):
 class SURELoss(nn.Module):
     """SURELoss Loss """
 
-    def __init__(self, input_depth, output_depth, sigma, epsilon=1e-3):
+    def __init__(self, input_depth, output_depth, sigma, net, epsilon=1e-3):
         super(SURELoss, self).__init__()
         self.epsilon = epsilon
-        self.sigma = sigma
+        self.sigma = sigma / 255.
         self.input_depth = input_depth
         self.output_depth = output_depth
-        self.net = skip(input_depth, output_depth, num_channels_down=[128, 128, 128, 128, 128, 128, 128, 128],
-                        num_channels_up=[128, 128, 128, 128, 128, 128, 128, 128],
-                        num_channels_skip=[15, 13, 11, 9, 7, 5, 3, 1],
-                        upsample_mode=['nearest', 'nearest', 'nearest', 'nearest', 'bilinear', 'bilinear', 'bilinear',
-                                       'bilinear'],
-                        need_sigmoid=True, need_bias=True, pad='reflection').type(torch.cuda.FloatTensor)
+        self.net = net
         self.mse = torch.nn.MSELoss().type(torch.cuda.FloatTensor)
 
     def forward(self, out, net_input):
@@ -313,11 +306,11 @@ class SURELoss(nn.Module):
         out - denoised image
         net_input - original noisy image
         """
-        n = out.shape[0]
+        n = torch.numel(out)
         # net_input = torch.reshape(img_noisy_var.detach(),
         #                           (1, self.input_depth, img_noisy_var.shape[2], img_noisy_var.shape[2]))
-        input_noise_vec = net_input.data.clone()
         fidelity_loss = self.mse(out, net_input)
+        input_noise_vec = net_input.data.clone()
         eta = input_noise_vec.normal_()
         net_input_perturbed = net_input.data.clone() + (eta * self.epsilon)
         out_perturbed = self.net(net_input_perturbed)
@@ -326,6 +319,6 @@ class SURELoss(nn.Module):
             eta * dx)  # Inner product between eta and (x_perturbed-x). They must have the same dimensions
         MCdiv = eta_dx / self.epsilon
         div_term = 2. * self.sigma ** 2 * MCdiv / n
-
+        # print(fidelity_loss, self.sigma**2, div_term)
         return fidelity_loss - self.sigma ** 2 + div_term
 

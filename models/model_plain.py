@@ -103,7 +103,9 @@ class ModelPlain(ModelBase):
             self.G_lossfn = SURELoss(
                 self.opt['n_channels'],
                 self.opt['n_channels'],
-                self.opt['sigma'][0]).to(self.device)
+                self.opt['datasets']['train']['sigma'],
+                self.netG
+            ).to(self.device)
         else:
             raise NotImplementedError('Loss type [{:s}] is not found.'.format(G_lossfn_type))
         self.G_lossfn_weight = self.opt_train['G_lossfn_weight']

@@ -4,6 +4,6 @@ COPY . /opt/KAIR
 
 WORKDIR /opt/KAIR
 
-CMD python main_train_druent.py
+CMD python main_train_dncnn.py
 
 #CMD sleep infinity

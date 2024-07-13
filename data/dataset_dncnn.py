@@ -71,8 +71,9 @@ class DatasetDnCNN(data.Dataset):
             # --------------------------------
             # add noise
             # --------------------------------
-            noise = torch.randn(img_L.size()).mul_(self.sigma/255.0)
-            img_L.add_(noise)
+            # TOMER - use already noised data of BSD68 by N2V
+            # noise = torch.randn(img_L.size()).mul_(self.sigma/255.0)
+            # img_L.add_(noise)
 
         else:
             """
