@@ -30,6 +30,9 @@ class DatasetDnCNN(data.Dataset):
         # return None if input is None
         # ------------------------------------
         self.paths_H = util.get_image_paths(opt['dataroot_H'])
+        # Tomer - for constant noise per image
+        self.train_noise = torch.randn((self.__len__(), 180, 180, 1)).mul_(self.sigma/255.0).detach().cpu().numpy()
+        # self.test_noise = torch.randn((68, 1, self.patch_size, self.patch_size)).mul_(self.sigma_test / 255.0).detach().cpu().numpy()
 
     def __getitem__(self, index):
 
@@ -38,10 +41,13 @@ class DatasetDnCNN(data.Dataset):
         # ------------------------------------
         H_path = self.paths_H[index]
         img_H = util.imread_uint(H_path, self.n_channels)
-
         L_path = H_path
 
         if self.opt['phase'] == 'train':
+            # Tomer - add constant noise. There is no need for real H (we assume there is no GT)
+            img_H = util.uint2single(img_H)
+            img_H += self.train_noise[index]
+
             """
             # --------------------------------
             # get L/H patch pairs
@@ -54,26 +60,38 @@ class DatasetDnCNN(data.Dataset):
             # --------------------------------
             rnd_h = random.randint(0, max(0, H - self.patch_size))
             rnd_w = random.randint(0, max(0, W - self.patch_size))
+            # print(H,W)
+            # print(rnd_h, rnd_w)
             patch_H = img_H[rnd_h:rnd_h + self.patch_size, rnd_w:rnd_w + self.patch_size, :]
-
+            # noise_for_patch = self.train_noise[index][:,rnd_h:rnd_h + self.patch_size, rnd_w:rnd_w + self.patch_size]
+            # print(self.train_noise[index].shape)
+            # print(noise_for_patch.shape)
             # --------------------------------
             # augmentation - flip, rotate
             # --------------------------------
             mode = random.randint(0, 7)
             patch_H = util.augment_img(patch_H, mode=mode)
-
+            # noise_for_patch = util.augment_img(noise_for_patch, mode=mode)
+            # print(noise_for_patch)
             # --------------------------------
             # HWC to CHW, numpy(uint) to tensor
             # --------------------------------
-            img_H = util.uint2tensor3(patch_H)
+            # img_H = util.uint2tensor3(patch_H)
+            img_H = util.single2tensor3(patch_H)
+            # print("img_H: ")
+            # print(img_H.shape)
+            # print("nosie_for_patch: ")
+            # print(noise_for_patch.shape)
+            # img_H += noise_for_patch
+
             img_L = img_H.clone()
 
             # --------------------------------
             # add noise
             # --------------------------------
-            # TOMER - use already noised data of BSD68 by N2V
-            noise = torch.randn(img_L.size()).mul_(self.sigma/255.0)
-            img_L.add_(noise)
+            # TOMER - Noise already added to img_H
+            # noise = torch.randn(img_L.size()).mul_(self.sigma/255.0)
+            # img_L.add_(noise)
 
         else:
             """
@@ -89,6 +107,13 @@ class DatasetDnCNN(data.Dataset):
             # --------------------------------
             np.random.seed(seed=0)
             img_L += np.random.normal(0, self.sigma_test/255.0, img_L.shape)
+
+            # Tomer - use pre-defined noise
+            # print("img_L:")
+            # print(img_L.shape)
+            # print("nosie:")
+            # print(self.test_noise[index].shape)
+            # img_L += self.test_noise[index]
 
             # --------------------------------
             # HWC to CHW, numpy to tensor

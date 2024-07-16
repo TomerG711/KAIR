@@ -69,7 +69,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--model_name', type=str, default='dncnn_25', help='dncnn_15, dncnn_25, dncnn_50, dncnn_gray_blind, dncnn_color_blind, dncnn3')
     parser.add_argument('--testset_name', type=str, default='set12', help='test set, bsd68 | set12')
-    parser.add_argument('--noise_level_img', type=int, default=15, help='noise level: 15, 25, 50')
+    parser.add_argument('--noise_level_img', type=int, default=25, help='noise level: 15, 25, 50')
     parser.add_argument('--x8', type=bool, default=False, help='x8 to boost performance')
     parser.add_argument('--show_img', type=bool, default=False, help='show the image')
     parser.add_argument('--model_pool', type=str, default='model_zoo', help='path of model_zoo')
@@ -78,6 +78,7 @@ def main():
     parser.add_argument('--need_degradation', type=bool, default=True, help='add noise or not')
     parser.add_argument('--task_current', type=str, default='dn', help='dn for denoising, fixed!')
     parser.add_argument('--sf', type=int, default=1, help='unused for denoising')
+    parser.add_argument('--seed', type=int, default=1234, help='seed for reproducibility')
     args = parser.parse_args()
 
     if 'color' in args.model_name:
@@ -116,7 +117,7 @@ def main():
     # ----------------------------------------
 
     from models.network_dncnn import DnCNN as net
-    model = net(in_nc=n_channels, out_nc=n_channels, nc=64, nb=nb, act_mode='R')
+    model = net(in_nc=n_channels, out_nc=n_channels, nc=64, nb=nb, act_mode='BR')
     # model = net(in_nc=n_channels, out_nc=n_channels, nc=64, nb=nb, act_mode='BR')  # use this if BN is not merged by utils_bnorm.merge_bn(model)
     model.load_state_dict(torch.load(model_path), strict=True)
     model.eval()
@@ -136,6 +137,7 @@ def main():
     L_paths = util.get_image_paths(L_path)
     H_paths = util.get_image_paths(H_path) if need_H else None
 
+    np.random.seed(args.seed)  # for reproducibility
     for idx, img in enumerate(L_paths):
 
         # ------------------------------------
@@ -148,7 +150,7 @@ def main():
         img_L = util.uint2single(img_L)
 
         if args.need_degradation:  # degradation process
-            np.random.seed(seed=0)  # for reproducibility
+            # np.random.seed(seed=0)  # for reproducibility # Tomer - set seed once before loop so each image will have different noise
             img_L += np.random.normal(0, args.noise_level_img/255., img_L.shape)
 
         util.imshow(util.single2uint(img_L), title='Noisy image with noise level {}'.format(args.noise_level_img)) if args.show_img else None

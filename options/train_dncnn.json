@@ -12,6 +12,9 @@
   , "path": {
     "root": "denoising"            // "denoising" | "superresolution"
     , "pretrained_netG": null      // path of pretrained model
+//  , "images":"/opt/KAIR/bsd68_outputs"
+//  , "models": "/opt/KAIR/ckpts"
+
   }
 
   , "datasets": {
@@ -77,5 +80,7 @@
     , "checkpoint_test": 5000           // for testing
     , "checkpoint_save": 5000           // for saving model
     , "checkpoint_print": 200           // for print
+    , "manual_seed": 1234
+
   }
 }

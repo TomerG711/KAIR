@@ -63,7 +63,7 @@ def main(json_path='options/train_dncnn.json'):
     # -->-->-->-->-->-->-->-->-->-->-->-->-->-
     init_iter, init_path_G = option.find_last_checkpoint(opt['path']['models'], net_type='G')
     opt['path']['pretrained_netG'] = init_path_G
-    current_step = init_iter
+    current_step = init_iter * 0
 
     border = 0
     # --<--<--<--<--<--<--<--<--<--<--<--<--<-
@@ -220,12 +220,17 @@ def main(json_path='options/train_dncnn.json'):
                     visuals = model.current_visuals()
                     E_img = util.tensor2uint(visuals['E'])
                     H_img = util.tensor2uint(visuals['H'])
+                    L_img = util.tensor2uint(visuals['L'])
 
                     # -----------------------
                     # save estimated image E
                     # -----------------------
-                    save_img_path = os.path.join(img_dir, '{:s}_{:d}.png'.format(img_name, current_step))
-                    util.imsave(E_img, save_img_path)
+                    E_save_img_path = os.path.join(img_dir, 'E_{:s}_{:d}.png'.format(img_name, current_step))
+                    util.imsave(E_img, E_save_img_path)
+                    H_save_img_path = os.path.join(img_dir, 'H_{:s}_{:d}.png'.format(img_name, current_step))
+                    util.imsave(H_img, H_save_img_path)
+                    L_save_img_path = os.path.join(img_dir, 'L_{:s}_{:d}.png'.format(img_name, current_step))
+                    util.imsave(L_img, L_save_img_path)
 
                     # -----------------------
                     # calculate PSNR
