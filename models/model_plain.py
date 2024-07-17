@@ -51,7 +51,7 @@ class ModelPlain(ModelBase):
     # ----------------------------------------
     def load(self):
         load_path_G = self.opt['path']['pretrained_netG']
-        if load_path_G is not None and False: # Tomer - never reload
+        if load_path_G is not None:
             print('Loading model for G [{:s}] ...'.format(load_path_G))
             self.load_network(load_path_G, self.netG, strict=self.opt_train['G_param_strict'], param_key='params')
         load_path_E = self.opt['path']['pretrained_netE']
@@ -77,8 +77,8 @@ class ModelPlain(ModelBase):
     # ----------------------------------------
     # save model / optimizer(optional)
     # ----------------------------------------
-    def save(self, iter_label):
-        self.save_network(self.save_dir, self.netG, 'G', iter_label)
+    def save(self, iter_label, epoch=0):
+        self.save_network(self.save_dir, self.netG, 'G', iter_label, epoch)
         if self.opt_train['E_decay'] > 0:
             self.save_network(self.save_dir, self.netE, 'E', iter_label)
         if self.opt_train['G_optimizer_reuse']:

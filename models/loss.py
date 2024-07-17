@@ -322,3 +322,4 @@ class SURELoss(nn.Module):
         # print(fidelity_loss, self.sigma**2, div_term)
         return fidelity_loss - self.sigma ** 2 + div_term
 
+#TODO: add comparison to MSE

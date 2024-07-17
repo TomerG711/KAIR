@@ -6,6 +6,15 @@ import torch.utils.data as data
 import utils.utils_image as util
 
 
+# def cyclic_shift(image, max_shift_fraction=0.5):
+#     h, w = image.shape
+#     vertical_shift = random.randint(0, int(h * max_shift_fraction))
+#     horizontal_shift = random.randint(0, int(w * max_shift_fraction))
+#     shifted_image = np.roll(image, vertical_shift, axis=0)
+#     shifted_image = np.roll(shifted_image, horizontal_shift, axis=1)
+#     return shifted_image
+
+
 class DatasetDnCNN(data.Dataset):
     """
     # -----------------------------------------
@@ -31,7 +40,7 @@ class DatasetDnCNN(data.Dataset):
         # ------------------------------------
         self.paths_H = util.get_image_paths(opt['dataroot_H'])
         # Tomer - for constant noise per image
-        self.train_noise = torch.randn((self.__len__(), 180, 180, 1)).mul_(self.sigma/255.0).detach().cpu().numpy()
+        self.train_noise = torch.randn((self.__len__(), 180, 180, 1)).mul_(self.sigma / 255.0).detach().cpu().numpy()
         # self.test_noise = torch.randn((68, 1, self.patch_size, self.patch_size)).mul_(self.sigma_test / 255.0).detach().cpu().numpy()
 
     def __getitem__(self, index):
@@ -45,8 +54,12 @@ class DatasetDnCNN(data.Dataset):
 
         if self.opt['phase'] == 'train':
             # Tomer - add constant noise. There is no need for real H (we assume there is no GT)
-            img_H = util.uint2single(img_H)
-            img_H += self.train_noise[index]
+            # img_H = util.uint2single(img_H)
+            # img_H += self.train_noise[index]
+
+            # if 'shift' in H_path:
+            #     np.random.seed(index)
+            #     img_H = cyclic_shift(img_H, 0.25)
 
             """
             # --------------------------------
@@ -76,8 +89,8 @@ class DatasetDnCNN(data.Dataset):
             # --------------------------------
             # HWC to CHW, numpy(uint) to tensor
             # --------------------------------
-            # img_H = util.uint2tensor3(patch_H)
-            img_H = util.single2tensor3(patch_H)
+            img_H = util.uint2tensor3(patch_H)
+            # img_H = util.single2tensor3(patch_H)
             # print("img_H: ")
             # print(img_H.shape)
             # print("nosie_for_patch: ")
@@ -106,7 +119,7 @@ class DatasetDnCNN(data.Dataset):
             # add noise
             # --------------------------------
             np.random.seed(seed=0)
-            img_L += np.random.normal(0, self.sigma_test/255.0, img_L.shape)
+            img_L += np.random.normal(0, self.sigma_test / 255.0, img_L.shape)
 
             # Tomer - use pre-defined noise
             # print("img_L:")

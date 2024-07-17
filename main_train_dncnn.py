@@ -63,7 +63,7 @@ def main(json_path='options/train_dncnn.json'):
     # -->-->-->-->-->-->-->-->-->-->-->-->-->-
     init_iter, init_path_G = option.find_last_checkpoint(opt['path']['models'], net_type='G')
     opt['path']['pretrained_netG'] = init_path_G
-    current_step = init_iter * 0
+    current_step = init_iter
 
     border = 0
     # --<--<--<--<--<--<--<--<--<--<--<--<--<-
@@ -196,7 +196,7 @@ def main(json_path='options/train_dncnn.json'):
             # -------------------------------
             if current_step % opt['train']['checkpoint_save'] == 0:
                 logger.info('Saving the model.')
-                model.save(current_step)
+                model.save(current_step, epoch)
 
             # -------------------------------
             # 6) testing
