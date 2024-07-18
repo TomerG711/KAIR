@@ -8,7 +8,7 @@ from collections import OrderedDict
 import logging
 import torch
 from torch.utils.data import DataLoader
-
+import matplotlib.pyplot as plt
 
 from utils import utils_logger
 from utils import utils_image as util
@@ -149,8 +149,13 @@ def main(json_path='options/train_dncnn.json'):
     # Step--4 (main training)
     # ----------------------------------------
     '''
-
-    for epoch in range(1000000):  # keep running
+    mse = torch.nn.MSELoss().type(torch.cuda.FloatTensor)
+    real_mses = []
+    sure = []
+    epochs = []
+    bsd68_psnr = []
+    bsd68_epochs = []
+    for epoch in range(10000):  # keep running
         for i, train_data in enumerate(train_loader):
 
             current_step += 1
@@ -180,17 +185,30 @@ def main(json_path='options/train_dncnn.json'):
                 logger.info('^_^ -----merging bnorm----- ^_^')
                 model.merge_bnorm_train()
                 model.print_network()
-
             # -------------------------------
             # 4) training information
             # -------------------------------
             if current_step % opt['train']['checkpoint_print'] == 0:
                 logs = model.current_log()  # such as loss
                 message = '<epoch:{:3d}, iter:{:8,d}, lr:{:.3e}> '.format(epoch, current_step, model.current_learning_rate())
+                results = model.current_results()
+                curr_mse = mse(results['E'], train_data['H']).detach().cpu().numpy()
+                real_mses.append(curr_mse)
+                logs['MSE'] = curr_mse
                 for k, v in logs.items():  # merge log information into message
                     message += '{:s}: {:.3e} '.format(k, v)
+                    if k=="G_loss":
+                        sure.append(v)
                 logger.info(message)
 
+            # real_mses.append(mse(visuals["E"], train_data["H"]))
+            #     print(visuals['E'].min(), visuals['E'].max())
+            #     print(train_data['H'].min(), train_data['H'].max())
+            #     print(f"MSE: {mse(visuals['E'], train_data['H'])}")
+            #     print("IN REAL MSE")
+            #     print(results["E"].shape, train_data['H'].shape)
+            #     print(mse(results['E'], train_data['H']).detach().cpu().numpy())
+                epochs.append(epoch)
             # -------------------------------
             # 5) save model
             # -------------------------------
@@ -202,7 +220,7 @@ def main(json_path='options/train_dncnn.json'):
             # 6) testing
             # -------------------------------
             if current_step % opt['train']['checkpoint_test'] == 0:
-
+                bsd68_epochs.append(epoch)
                 avg_psnr = 0.0
                 idx = 0
 
@@ -242,9 +260,41 @@ def main(json_path='options/train_dncnn.json'):
                     avg_psnr += current_psnr
 
                 avg_psnr = avg_psnr / idx
-
+                bsd68_psnr.append(avg_psnr)
                 # testing log
                 logger.info('<epoch:{:3d}, iter:{:8,d}, Average PSNR : {:<.2f}dB\n'.format(epoch, current_step, avg_psnr))
+    plt.figure()
+    # Plot the first set of data
+    # x = [i for i in range(len(real_mses))]
+    # print(real_mses)
+    # print(sure)
+    plt.plot(epochs, real_mses, label='MSE')
+
+    # Plot the second set of data
+    plt.plot(epochs, sure, label='SURE')
+    # plt.plot(bsd68_epochs, bsd68_psnr, label='PSNR (BSD68)')
+
+    # Add title and labels
+    plt.title('SURE/MSE')
+    plt.xlabel('Epoch')
+    plt.ylabel('Loss Value')
+
+    # Add a legend
+    plt.legend()
+    # plt.ylim(0, 1)
+    # Show the plot
+    plt.savefig("/opt/KAIR/denoising/dncnn25/images/sure-mse.png")
+    plt.close()
+
+    # Plot PSNR
+    plt.figure()
+    plt.plot(bsd68_epochs, bsd68_psnr)
+    plt.title('BSD68 PSNR')
+    plt.xlabel('Epoch')
+    plt.ylabel('dB')
+    plt.savefig("/opt/KAIR/denoising/dncnn25/images/PSNR.png")
+    plt.close()
+
 
     logger.info('Saving the final model.')
     model.save('latest')

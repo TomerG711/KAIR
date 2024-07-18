@@ -20,7 +20,7 @@ if not os.path.exists(zipPath):
 
 
 
-X = np.load('data/BSD68_reproducibility_data/train/DCNN400_train_gaussian25.npy')
+# X = np.load('data/BSD68_reproducibility_data/train/DCNN400_train_gaussian25.npy')
 
 from PIL import Image
 import numpy as np
@@ -30,18 +30,18 @@ import numpy as np
 
 # Select the image at index 1
 
-for i in range(X.shape[0]):
-    print(f"Working on image {i}")
-    image_to_save = X[i]
-    image_to_save = np.round(np.clip(image_to_save, 0, 255))
-# print(image_to_save.max())
-    image_to_save = image_to_save.astype(np.uint8)
-# print(image_to_save.max())
-
-# Convert numpy array to PIL Image
-    image_to_save_pil = Image.fromarray(image_to_save)
-
-# Save the image
-    image_to_save_pil.save(f'/opt/KAIR/datasets/train/noisy/{i}.png')
-
-print("Done downloading train data")
+# for i in range(X.shape[0]):
+#     print(f"Working on image {i}")
+#     image_to_save = X[i]
+#     image_to_save = np.round(np.clip(image_to_save, 0, 255))
+# # print(image_to_save.max())
+#     image_to_save = image_to_save.astype(np.uint8)
+# # print(image_to_save.max())
+#
+# # Convert numpy array to PIL Image
+#     image_to_save_pil = Image.fromarray(image_to_save)
+#
+# # Save the image
+#     image_to_save_pil.save(f'/opt/KAIR/datasets/train/noisy/{i}.png')
+#
+# print("Done downloading train data")

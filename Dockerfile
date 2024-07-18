@@ -10,7 +10,11 @@ CMD python main_train_dncnn.py
 #--testsets /opt/KAIR/testsets --results /opt/KAIR/denoising/dncnn25/images
 
 #CMD python generate_shifted_images.py
-#
+
 #CMD sleep infinity
 # Epoch 102: 27.50dB
 # Epoch 2244: 28.67dB
+
+# TODO:
+# 6. Generate cycled train data (NPY, include original)
+# 7. Train over new data

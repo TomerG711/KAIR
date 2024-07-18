@@ -309,6 +309,8 @@ class SURELoss(nn.Module):
         n = torch.numel(out)
         # net_input = torch.reshape(img_noisy_var.detach(),
         #                           (1, self.input_depth, img_noisy_var.shape[2], img_noisy_var.shape[2]))
+        # print("IN SURE:")
+        # print(out.shape, net_input.shape)
         fidelity_loss = self.mse(out, net_input)
         input_noise_vec = net_input.data.clone()
         eta = input_noise_vec.normal_()
@@ -322,4 +324,3 @@ class SURELoss(nn.Module):
         # print(fidelity_loss, self.sigma**2, div_term)
         return fidelity_loss - self.sigma ** 2 + div_term
 
-#TODO: add comparison to MSE

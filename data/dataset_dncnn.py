@@ -38,9 +38,14 @@ class DatasetDnCNN(data.Dataset):
         # get path of H
         # return None if input is None
         # ------------------------------------
-        self.paths_H = util.get_image_paths(opt['dataroot_H'])
+        # Tomer - Use NPY
+        if self.opt['phase'] == 'train':
+            self.data = np.load(opt['npy_path'])
+        else:
+            self.data = np.load(opt['npy_path'], allow_pickle=True)
+            # self.paths_H = util.get_image_paths(opt['dataroot_H'])
         # Tomer - for constant noise per image
-        self.train_noise = torch.randn((self.__len__(), 180, 180, 1)).mul_(self.sigma / 255.0).detach().cpu().numpy()
+        # self.train_noise = torch.randn((self.__len__(), 180, 180, 1)).mul_(self.sigma / 255.0).detach().cpu().numpy()
         # self.test_noise = torch.randn((68, 1, self.patch_size, self.patch_size)).mul_(self.sigma_test / 255.0).detach().cpu().numpy()
 
     def __getitem__(self, index):
@@ -48,11 +53,17 @@ class DatasetDnCNN(data.Dataset):
         # ------------------------------------
         # get H image
         # ------------------------------------
-        H_path = self.paths_H[index]
-        img_H = util.imread_uint(H_path, self.n_channels)
-        L_path = H_path
+        # H_path = self.paths_H[index]
+        # img_H = util.imread_uint(H_path, self.n_channels)
+        # L_path = H_path
 
         if self.opt['phase'] == 'train':
+            img_H = self.data[index][0]
+            img_L = self.data[index][1]
+            # print(img_H.min(), img_H.max())
+            # print(img_L.min(), img_L.max())
+            # img_H = np.expand_dims(img_H, axis=2)  # HxWx1
+
             # Tomer - add constant noise. There is no need for real H (we assume there is no GT)
             # img_H = util.uint2single(img_H)
             # img_H += self.train_noise[index]
@@ -76,6 +87,7 @@ class DatasetDnCNN(data.Dataset):
             # print(H,W)
             # print(rnd_h, rnd_w)
             patch_H = img_H[rnd_h:rnd_h + self.patch_size, rnd_w:rnd_w + self.patch_size, :]
+            patch_L = img_L[rnd_h:rnd_h + self.patch_size, rnd_w:rnd_w + self.patch_size, :]
             # noise_for_patch = self.train_noise[index][:,rnd_h:rnd_h + self.patch_size, rnd_w:rnd_w + self.patch_size]
             # print(self.train_noise[index].shape)
             # print(noise_for_patch.shape)
@@ -84,12 +96,14 @@ class DatasetDnCNN(data.Dataset):
             # --------------------------------
             mode = random.randint(0, 7)
             patch_H = util.augment_img(patch_H, mode=mode)
+            patch_L = util.augment_img(patch_L, mode=mode)
             # noise_for_patch = util.augment_img(noise_for_patch, mode=mode)
             # print(noise_for_patch)
             # --------------------------------
             # HWC to CHW, numpy(uint) to tensor
             # --------------------------------
             img_H = util.uint2tensor3(patch_H)
+            img_L = util.uint2tensor3(patch_L)
             # img_H = util.single2tensor3(patch_H)
             # print("img_H: ")
             # print(img_H.shape)
@@ -97,7 +111,7 @@ class DatasetDnCNN(data.Dataset):
             # print(noise_for_patch.shape)
             # img_H += noise_for_patch
 
-            img_L = img_H.clone()
+            # img_L = img_H.clone()
 
             # --------------------------------
             # add noise
@@ -105,21 +119,34 @@ class DatasetDnCNN(data.Dataset):
             # TOMER - Noise already added to img_H
             # noise = torch.randn(img_L.size()).mul_(self.sigma/255.0)
             # img_L.add_(noise)
+            # return {'L': img_L, 'H': img_H, 'H_path': f'H_{index}', 'L_path': f'L_{index}'}
 
         else:
+            # H_path = self.paths_H[index]
+            # img_H = util.imread_uint(H_path, self.n_channels)
+            img_H = self.data[index][0]
+            # L_path = H_path
             """
             # --------------------------------
             # get L/H image pairs
             # --------------------------------
             """
-            img_H = util.uint2single(img_H)
-            img_L = np.copy(img_H)
+
+            # img_H = util.uint2single(img_H)
+            # img_L = np.copy(img_H)
+            # img_H = util.uint2tensor3(img_H)
+
+            img_L = self.data[index][1]
+            # img_L = np.expand_dims(img_L, axis=2)  # HxWx1
+
+            img_H = util.uint2tensor3(img_H)
+            img_L = util.uint2tensor3(img_L)
 
             # --------------------------------
             # add noise
             # --------------------------------
-            np.random.seed(seed=0)
-            img_L += np.random.normal(0, self.sigma_test / 255.0, img_L.shape)
+            # np.random.seed(seed=0)
+            # img_L += np.random.normal(0, self.sigma_test / 255.0, img_L.shape)
 
             # Tomer - use pre-defined noise
             # print("img_L:")
@@ -131,10 +158,14 @@ class DatasetDnCNN(data.Dataset):
             # --------------------------------
             # HWC to CHW, numpy to tensor
             # --------------------------------
-            img_L = util.single2tensor3(img_L)
-            img_H = util.single2tensor3(img_H)
+            # img_L = util.single2tensor3(img_L)
+            # img_H = util.single2tensor3(img_H)
 
-        return {'L': img_L, 'H': img_H, 'H_path': H_path, 'L_path': L_path}
+        # return {'L': img_L, 'H': img_H, 'H_path': f"H_{index}", 'L_path': L_path}
+        return {'L': img_L, 'H': img_H, 'H_path': f'H_{index}', 'L_path': f'L_{index}'}
 
     def __len__(self):
-        return len(self.paths_H)
+        # if self.opt['phase'] == 'train':
+        return self.data.shape[0]
+        # else:
+        #     return len(self.paths_H)

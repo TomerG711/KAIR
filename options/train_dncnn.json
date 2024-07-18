@@ -31,6 +31,8 @@
       , "dataloader_shuffle": true
       , "dataloader_num_workers": 8
       , "dataloader_batch_size": 64     // batch size 1 | 16 | 32 | 48 | 64 | 128
+      , "npy_path": "data/BSD68_reproducibility_data/train/DCNN400_train_gaussian25_pairs.npy"
+
     }
     , "test": {
       "name": "test_dataset"            // just name
@@ -40,6 +42,7 @@
 
       , "sigma": 25                     // 15, 25, 50 for DnCNN | [0, 75] for FFDNet and FDnCNN
       , "sigma_test": 25                // 15, 25, 50 for DnCNN and ffdnet
+      , "npy_path": "data/BSD68_reproducibility_data/test/DCNN400_test_gaussian25_pairs.npy"
 
     }
   }
