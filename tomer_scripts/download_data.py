@@ -7,8 +7,8 @@ ssl._create_default_https_context = ssl._create_unverified_context
 
 
 # create a folder for our data
-if not os.path.isdir('./data'):
-    os.mkdir('data')
+if not os.path.isdir('../data'):
+    os.mkdir('../data')
 
 # check if data has been downloaded already
 zipPath="data/BSD68_reproducibility.zip"

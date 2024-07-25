@@ -31,7 +31,7 @@
       , "dataloader_shuffle": true
       , "dataloader_num_workers": 8
       , "dataloader_batch_size": 64     // batch size 1 | 16 | 32 | 48 | 64 | 128
-      , "npy_path": "data/BSD68_reproducibility_data/train/DCNN400_train_gaussian25_pairs.npy"
+      , "npy_path": "data/BSD68_reproducibility_data/train/DCNN400_test_gaussian25_with_shifted.npy"
 
     }
     , "test": {
