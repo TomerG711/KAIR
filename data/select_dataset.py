@@ -18,8 +18,16 @@ def define_Dataset(dataset_opt):
     # denoising
     # -----------------------------------------
     elif dataset_type in ['dncnn', 'denoising']:
-        from data.dataset_dncnn import DatasetDnCNN as D
+        if dataset_opt["net_type"] == "original":
+            from data.dataset_dncnn import OriginalDatasetDnCNN as D
 
+        elif dataset_opt["net_type"] == "sure":
+            from data.dataset_dncnn import SUREDatasetDnCNN as D
+
+        elif dataset_opt["net_type"] == "n2n":
+            from data.dataset_dncnn import N2NDatasetDnCNN as D
+        else:
+            raise Exception("Unsupported net type!")
     elif dataset_type in ['dnpatch']:
         from data.dataset_dnpatch import DatasetDnPatch as D
 

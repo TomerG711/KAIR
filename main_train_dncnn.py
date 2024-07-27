@@ -65,6 +65,8 @@ def main(json_path='options/train_dncnn.json'):
     opt['path']['pretrained_netG'] = init_path_G
     current_step = init_iter
 
+    loss_type = opt['train']['G_lossfn_type'] # Tomer - for graphs
+    print(f"Using loss function: {loss_type}")
     border = 0
     # --<--<--<--<--<--<--<--<--<--<--<--<--<-
 
@@ -192,7 +194,7 @@ def main(json_path='options/train_dncnn.json'):
                 logs = model.current_log()  # such as loss
                 message = '<epoch:{:3d}, iter:{:8,d}, lr:{:.3e}> '.format(epoch, current_step, model.current_learning_rate())
                 results = model.current_results()
-                curr_mse = mse(results['E'], train_data['H']).detach().cpu().numpy()
+                curr_mse = mse(results['E'], train_data['GT']).detach().cpu().numpy()
                 real_mses.append(curr_mse)
                 logs['MSE'] = curr_mse
                 for k, v in logs.items():  # merge log information into message
@@ -239,6 +241,7 @@ def main(json_path='options/train_dncnn.json'):
                     E_img = util.tensor2uint(visuals['E'])
                     H_img = util.tensor2uint(visuals['H'])
                     L_img = util.tensor2uint(visuals['L'])
+                    GT_img = util.tensor2uint(visuals['GT'])
 
                     # -----------------------
                     # save estimated image E
@@ -249,11 +252,13 @@ def main(json_path='options/train_dncnn.json'):
                     util.imsave(H_img, H_save_img_path)
                     L_save_img_path = os.path.join(img_dir, 'L_{:s}_{:d}.png'.format(img_name, current_step))
                     util.imsave(L_img, L_save_img_path)
+                    GT_save_img_path = os.path.join(img_dir, 'GT_{:s}_{:d}.png'.format(img_name, current_step))
+                    util.imsave(GT_img, GT_save_img_path)
 
                     # -----------------------
                     # calculate PSNR
                     # -----------------------
-                    current_psnr = util.calculate_psnr(E_img, H_img, border=border)
+                    current_psnr = util.calculate_psnr(E_img, GT_img, border=border)
 
                     logger.info('{:->4d}--> {:>10s} | {:<4.2f}dB'.format(idx, image_name_ext, current_psnr))
 
@@ -271,11 +276,11 @@ def main(json_path='options/train_dncnn.json'):
     plt.plot(epochs, real_mses, label='MSE')
 
     # Plot the second set of data
-    plt.plot(epochs, sure, label='SURE')
+    plt.plot(epochs, sure, label=loss_type)
     # plt.plot(bsd68_epochs, bsd68_psnr, label='PSNR (BSD68)')
 
     # Add title and labels
-    plt.title('SURE/MSE')
+    plt.title(f'{loss_type}/MSE')
     plt.xlabel('Epoch')
     plt.ylabel('Loss Value')
 
@@ -289,7 +294,7 @@ def main(json_path='options/train_dncnn.json'):
     # Plot PSNR
     plt.figure()
     plt.plot(bsd68_epochs, bsd68_psnr)
-    plt.title('BSD68 PSNR')
+    plt.title('BSD68 PSNR Noise level 25')
     plt.xlabel('Epoch')
     plt.ylabel('dB')
     plt.savefig("/opt/KAIR/denoising/dncnn25/images/PSNR.png")

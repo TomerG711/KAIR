@@ -160,7 +160,7 @@ class ModelPlain(ModelBase):
         self.L = data['L'].to(self.device)
         if need_H:
             self.H = data['H'].to(self.device)
-
+            self.GT = data['GT'].to(self.device)
     # ----------------------------------------
     # feed L to netG
     # ----------------------------------------
@@ -173,7 +173,7 @@ class ModelPlain(ModelBase):
     def optimize_parameters(self, current_step):
         self.G_optimizer.zero_grad()
         self.netG_forward()
-        G_loss = self.G_lossfn_weight * self.G_lossfn(self.E, self.L) # Tomer - was (self.E, self.H)
+        G_loss = self.G_lossfn_weight * self.G_lossfn(self.E, self.H)
         G_loss.backward()
 
         # ------------------------------------
@@ -240,6 +240,7 @@ class ModelPlain(ModelBase):
         out_dict['E'] = self.E.detach()[0].float().cpu()
         if need_H:
             out_dict['H'] = self.H.detach()[0].float().cpu()
+            out_dict['GT'] = self.GT.detach()[0].float().cpu()
         return out_dict
 
     # ----------------------------------------
@@ -251,6 +252,7 @@ class ModelPlain(ModelBase):
         out_dict['E'] = self.E.detach().float().cpu()
         if need_H:
             out_dict['H'] = self.H.detach().float().cpu()
+            out_dict['GT'] = self.GT.detach().float().cpu()
         return out_dict
 
     """

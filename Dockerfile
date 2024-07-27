@@ -14,7 +14,8 @@ CMD python main_train_dncnn.py
 #CMD sleep infinity
 # Epoch 102: 27.50dB
 # Epoch 2244: 28.67dB
-
+#CMD sleep infinity
 # TODO:
-# 6. Generate cycled train data (NPY, include original)
-# 7. Train over new data
+# 3. Create aligned data for N2N from cycled data
+# 4. Train N2N over aligned data
+# 5. Repeat for noise 100
