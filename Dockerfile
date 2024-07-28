@@ -16,6 +16,7 @@ CMD python main_train_dncnn.py
 # Epoch 2244: 28.67dB
 #CMD sleep infinity
 # TODO:
+# https://arxiv.org/pdf/1902.02452
 # 3. Generate test set for noise 100
 # 4. Train original DnCNN
 # 5. Generate shifted set for DnCNN+SURE
