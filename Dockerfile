@@ -16,6 +16,9 @@ CMD python main_train_dncnn.py
 # Epoch 2244: 28.67dB
 #CMD sleep infinity
 # TODO:
-# 3. Create aligned data for N2N from cycled data
-# 4. Train N2N over aligned data
-# 5. Repeat for noise 100
+# 3. Generate test set for noise 100
+# 4. Train original DnCNN
+# 5. Generate shifted set for DnCNN+SURE
+# 6. Train DnCNN+SURE for noise 100
+# 7. Generate aligned set for N2N
+# 8. Train N2N for noise 100

@@ -271,6 +271,7 @@ class SUREDatasetDnCNN(data.Dataset):
 
 
 class N2NDatasetDnCNN(data.Dataset):
+    # TODO: I temporarily changed so that noise will be generated on the fly for sanity
     """
     # -----------------------------------------
     # Get L/H for denosing on AWGN with fixed sigma.
@@ -291,7 +292,7 @@ class N2NDatasetDnCNN(data.Dataset):
         self.opt = opt
         self.n_channels = opt['n_channels'] if opt['n_channels'] else 3
         self.patch_size = opt['H_size'] if opt['H_size'] else 64
-        # self.sigma = opt['sigma'] if opt['sigma'] else 25
+        self.sigma = opt['sigma'] if opt['sigma'] else 25
         # self.sigma_test = opt['sigma_test'] if opt['sigma_test'] else self.sigma
 
         # ------------------------------------
@@ -319,8 +320,9 @@ class N2NDatasetDnCNN(data.Dataset):
 
         if self.opt['phase'] == 'train':
             img_H = self.data[index][0]
-            img_L = self.data[index][1]
-            img_L2 = self.data[index][2]
+            # img_L = self.data[index][1]
+            # img_L2 = self.data[index][2]
+
             # print(img_H.min(), img_H.max())
             # print(img_L.min(), img_L.max())
             # img_H = np.expand_dims(img_H, axis=2)  # HxWx1
@@ -348,8 +350,12 @@ class N2NDatasetDnCNN(data.Dataset):
             # print(H,W)
             # print(rnd_h, rnd_w)
             patch_H = img_H[rnd_h:rnd_h + self.patch_size, rnd_w:rnd_w + self.patch_size, :]
-            patch_L = img_L[rnd_h:rnd_h + self.patch_size, rnd_w:rnd_w + self.patch_size, :]
-            patch_L2 = img_L2[rnd_h:rnd_h + self.patch_size, rnd_w:rnd_w + self.patch_size, :]
+            # patch_L = img_L[rnd_h:rnd_h + self.patch_size, rnd_w:rnd_w + self.patch_size, :]
+            # patch_L2 = img_L2[rnd_h:rnd_h + self.patch_size, rnd_w:rnd_w + self.patch_size, :]
+
+            # patch_L = patch_H + torch.randn(patch_H.shape).mul_(self.sigma)
+            patch_L = patch_H + np.random.normal(size=patch_H.shape) * self.sigma
+            patch_L2 = patch_H + np.random.normal(size=patch_H.shape) * self.sigma
             # noise_for_patch = self.train_noise[index][:,rnd_h:rnd_h + self.patch_size, rnd_w:rnd_w + self.patch_size]
             # print(self.train_noise[index].shape)
             # print(noise_for_patch.shape)

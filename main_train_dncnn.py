@@ -300,7 +300,10 @@ def main(json_path='options/train_dncnn.json'):
     plt.savefig("/opt/KAIR/denoising/dncnn25/images/PSNR.png")
     plt.close()
 
-
+    best_psnr = max(bsd68_psnr)
+    best_psnr_idx = np.argmax(bsd68_psnr)
+    best_psnr_epoch = bsd68_epochs[best_psnr_idx]
+    logger.info(f"Best BSD68 PSNR: {best_psnr} at epoch: {best_psnr_epoch}")
     logger.info('Saving the final model.')
     model.save('latest')
     logger.info('End of training.')
