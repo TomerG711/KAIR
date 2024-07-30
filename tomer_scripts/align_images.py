@@ -28,7 +28,12 @@ def dft_registration(img1, img2):
 
 
 shifts, img2_aligned = dft_registration(img1, img2)
+# img2_aligned = img2_aligned.astype(np.uint8)
+# img2_aligned = np.rint(img2_aligned).astype(np.uint8)
 print(shifts)
+print(img1.min(), img1.max())
+print(img2.min(), img2.max())
+print(img2_aligned.min(), img2_aligned.max())
 # Compute the difference between the original and aligned images
 difference = img1 - img2_aligned
 
@@ -45,10 +50,10 @@ ax[3].set_title('Difference')
 for a in ax:
     a.axis('off')
 
-noise = 175
+noise = 0
 plt.suptitle(f"Noise {noise}")
-# plt.show()
-plt.savefig(f"C:\\Users\\Tomer\\Downloads\\output_images\\noisy_{noise}_aligned.png")
+plt.show()
+# plt.savefig(f"C:\\Users\\Tomer\\Downloads\\output_images\\noisy_{noise}_aligned.png")
 
 """
 TODO:

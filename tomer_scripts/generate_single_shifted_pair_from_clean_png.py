@@ -51,6 +51,6 @@ def process_image(clean_image_path, output_dir, noise_level):
 # Usage
 clean_image_path = 'C:\\Users\\Tomer\\Downloads\\clean_1.png'
 output_dir = 'C:\\Users\\Tomer\\Downloads\\output_images'
-process_image(clean_image_path, output_dir, noise_level=175)
+process_image(clean_image_path, output_dir, noise_level=25)
 
 print("Images saved successfully.")
