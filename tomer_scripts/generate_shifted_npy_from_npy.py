@@ -34,7 +34,7 @@ def augment_image(image):
     return augmented_images
 
 
-def add_gaussian_noise(image, sigma=25):
+def add_gaussian_noise(image, sigma):
     noise = np.random.normal(0, sigma, image.shape).astype(np.float32)
     noisy_image = image + noise
     return noisy_image
@@ -46,7 +46,7 @@ def random_shift(image, shift_h, shift_w):
     return shifted_image
 
 
-def extend_dataset_with_shifts_and_augmentations(original_data, original_images):
+def extend_dataset_with_shifts_and_augmentations(original_data, original_images, sigma):
     extended_data = []
 
     for i in range(len(original_data)):
@@ -60,7 +60,7 @@ def extend_dataset_with_shifts_and_augmentations(original_data, original_images)
         extended_data.append((clean_img[:, :, np.newaxis], noisy_img[:, :, np.newaxis]))
 
     for img in original_images:
-        new_noisy_img = add_gaussian_noise(img)
+        new_noisy_img = add_gaussian_noise(img, sigma)
 
         # Generate random shifts
         h, w = img.shape
@@ -83,7 +83,7 @@ def extend_dataset_with_shifts_and_augmentations(original_data, original_images)
 
 
 # Load the original npy file
-original_npy_file = '/opt/KAIR/data/BSD68_reproducibility_data/train/DCNN400_train_gaussian25_pairs.npy'
+original_npy_file = '/opt/KAIR/data/BSD68_reproducibility_data/train/DCNN400_train_gaussian100_pairs.npy'
 original_data = load_npy(original_npy_file)
 
 # Load the original clean images from the directory
@@ -91,10 +91,10 @@ clean_images_directory = '/opt/KAIR/data/BSD68_reproducibility_data/train/gt'
 original_clean_images = load_images_from_directory(clean_images_directory)
 
 # Extend the dataset
-extended_data = extend_dataset_with_shifts_and_augmentations(original_data, original_clean_images)
+extended_data = extend_dataset_with_shifts_and_augmentations(original_data, original_clean_images, 100)
 
 # Save the extended dataset to a new npy file
-new_npy_file = '/opt/KAIR/data/BSD68_reproducibility_data/train/DCNN400_test_gaussian25_with_shifted.npy'
+new_npy_file = '/opt/KAIR/data/BSD68_reproducibility_data/train/DCNN400_train_gaussian100_with_shifted.npy'
 save_npy(extended_data, new_npy_file)
 
 print("Extended data saved successfully. Shape:", extended_data.shape)

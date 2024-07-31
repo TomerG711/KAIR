@@ -64,13 +64,13 @@ for filename in os.listdir(input_folder):
         original_image = np.array(Image.open(original_image_path))
 
         # Add noise to the original image
-        # noised_image = add_noise(original_image, noise_level=25)
+        noised_image = add_noise(original_image, noise_level=25)
         # noised_image_pil = Image.fromarray(noised_image)
         # noised_image_pil.save(os.path.join(output_folder, f'{os.path.splitext(filename)[0]}_noised.png'))
 
         # Add noise again and perform cyclic shift
         # noised_shifted_image = add_noise(original_image, noise_level=25)
-        noised_shifted_image = cyclic_shift(original_image, max_shift_fraction=0.25)
+        noised_shifted_image = cyclic_shift(noised_image, max_shift_fraction=0.25)
         noised_shifted_image_pil = Image.fromarray(noised_shifted_image)
         noised_shifted_image_pil.save(
             os.path.join(output_folder, f'{os.path.splitext(filename)[0]}_shifted.png'))

@@ -109,6 +109,7 @@ class OriginalDatasetDnCNN(data.Dataset):
     def __len__(self):
         # return len(self.paths_H)
         if self.opt['phase'] == 'train':
+            # print(self.data.shape[0])
             return self.data.shape[0]
         else:
             return self.data.shape[0]

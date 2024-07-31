@@ -26,17 +26,17 @@ def augment_image(image):
     return augmented_images
 
 
-def add_gaussian_noise(image, sigma=25):
+def add_gaussian_noise(image, sigma):
     # print(image.min(),image.max())
     noise = np.random.normal(0, sigma, image.shape).astype(np.float32)
     noisy_image = image + noise
     return noisy_image
 
 
-def create_clean_noisy_pairs(images):
+def create_clean_noisy_pairs(images, sigma):
     clean_noisy_pairs = []
     for img in images:
-        noisy_img = add_gaussian_noise(img)
+        noisy_img = add_gaussian_noise(img, sigma)
         augmented_clean_images = augment_image(img)
         augmented_noisy_images = augment_image(noisy_img)
         for clean_img, noisy_img in zip(augmented_clean_images, augmented_noisy_images):
@@ -58,17 +58,18 @@ def create_clean_noisy_pairs_without_aug(images):
 
 
 # Load images
-directory = "/opt/KAIR/testsets/bsd68"
+directory = "/opt/KAIR/data/BSD68_reproducibility_data/train/gt"
 images = load_images_from_directory(directory)
 
 # Create clean and noisy pairs
-clean_noisy_pairs = create_clean_noisy_pairs_without_aug(images)
+# clean_noisy_pairs = create_clean_noisy_pairs_without_aug(images)
+clean_noisy_pairs = create_clean_noisy_pairs(images, 100)
 print(clean_noisy_pairs.shape)
 # print(len(images))
 # Reshape to desired format
 # final_data = clean_noisy_pairs.reshape((68, 2, -1, -1, 1))
 final_data = clean_noisy_pairs
 # Save to .npy file
-np.save("DCNN400_test_gaussian25_pairs.npy", final_data)
+np.save("/opt/KAIR/data/BSD68_reproducibility_data/train/DCNN400_train_gaussian100_pairs.npy", final_data)
 
 print("Data saved successfully. Shape:", final_data.shape)
