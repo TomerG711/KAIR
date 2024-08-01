@@ -47,7 +47,7 @@ def add_noise(image, noise_level=25):
 
 
 # Function to perform cyclic shift
-def cyclic_shift(image, max_shift_fraction=0.5):
+def cyclic_shift(image, max_shift_fraction=0.25):
     h, w = image.shape
     vertical_shift = random.randint(0, int(h * max_shift_fraction))
     horizontal_shift = random.randint(0, int(w * max_shift_fraction))

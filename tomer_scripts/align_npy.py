@@ -17,9 +17,15 @@ def dft_registration(img1, img2):
     max_idx = np.unravel_index(np.argmax(np.abs(r)), r.shape)
     shifts = np.array(max_idx) - np.array(r.shape) // 2
 
-    img2_shifted = np.abs(ifft2(fourier_shift(fft2(img2), shifts)))
+    # img2_shifted = np.abs(ifft2(fourier_shift(fft2(img2), shifts)))
 
-    return shifts, img2_shifted
+    # return shifts, img2_shifted
+    return shifts
+
+def apply_shifts(image, shifts):
+    shifted_image = np.roll(image, -shifts[0], axis=0)
+    shifted_image = np.roll(shifted_image, -shifts[1], axis=1)
+    return shifted_image
 
 
 def process_images(npy_file_path, output_npy_file_path):
@@ -41,7 +47,9 @@ def process_images(npy_file_path, output_npy_file_path):
         noisy_img = original_data[i, 1, :, :, 0]
         matching_noisy_img = original_data[i + 3168, 1, :, :, 0]
 
-        _, aligned_img = dft_registration(clean_img, matching_noisy_img)
+        # _, aligned_img = dft_registration(clean_img, matching_noisy_img)
+        computed_shifts = dft_registration(noisy_img, matching_noisy_img)
+        aligned_img = apply_shifts(matching_noisy_img, computed_shifts)  # Apply negative of computed shifts to align
 
         # Append each set of images as a tuple
         all_images.append((clean_img[:, :, np.newaxis], noisy_img[:, :, np.newaxis], aligned_img[:, :, np.newaxis]))
@@ -54,6 +62,6 @@ def process_images(npy_file_path, output_npy_file_path):
 
 # Usage
 process_images(
-    '/opt/KAIR/data/BSD68_reproducibility_data/train/DCNN400_test_gaussian25_with_shifted.npy',
-    '/opt/KAIR/data/BSD68_reproducibility_data/train/DCNN400_test_gaussian25_with_shifted_and_aligned.npy',
+    '/opt/KAIR/data/BSD68_reproducibility_data/train/DCNN400_train_gaussian25_with_shifted.npy',
+    '/opt/KAIR/data/BSD68_reproducibility_data/train/DCNN400_train_gaussian25_with_shifted_and_aligned.npy',
 )
