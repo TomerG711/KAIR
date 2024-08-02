@@ -11,7 +11,7 @@ CMD python main_train_dncnn.py
 
 #CMD python generate_shifted_images_png.py
 
-CMD sleep infinity
+#CMD sleep infinity
 # Epoch 102: 27.50dB
 # Epoch 2244: 28.67dB
 #CMD sleep infinity

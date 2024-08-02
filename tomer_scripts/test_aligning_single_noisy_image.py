@@ -26,18 +26,18 @@ def cyclic_shift(image, max_shift_fraction=0.25):
     return shifted_image, (vertical_shift, horizontal_shift)
 
 def apply_shifts(image, shifts):
-    shifted_image = np.roll(image, -shifts[0], axis=0)
-    shifted_image = np.roll(shifted_image, -shifts[1], axis=1)
+    shifted_image = np.roll(image, shifts[0], axis=0)
+    shifted_image = np.roll(shifted_image, shifts[1], axis=1)
     return shifted_image
 
 
 # Read a clean image
-image_path = 'C:\\Users\\Tomer\\Downloads\\clean_1.png'  # Replace with your image path
+image_path = 'C:\\Users\\USER\\Downloads\\clean_0.png'  # Replace with your image path
 clean_image = Image.open(image_path).convert('L')  # Convert to grayscale
 clean_image = np.array(clean_image)
 
 # Add noise to the clean image
-noise = np.random.normal(0, 25, clean_image.shape)
+noise = np.random.normal(0, 100, clean_image.shape)
 noisy_image = clean_image + noise
 # noisy_image = np.clip(noisy_image, 0, 255).astype(np.uint8)
 
@@ -50,13 +50,13 @@ print(f"Shifted image min/max: {shifted_image.min()}, {shifted_image.max()}")
 # Align the image back using DFT registration
 # computed_shifts, aligned_image = dft_registration(noisy_image, shifted_image)
 computed_shifts = dft_registration(noisy_image, shifted_image)
-aligned_image = apply_shifts(shifted_image, -computed_shifts)  # Apply negative of computed shifts to align
+aligned_image = apply_shifts(shifted_image, computed_shifts)  # Apply negative of computed shifts to align
 print(f"Computed Shifts (Vertical, Horizontal): {computed_shifts}")
 print(f"Aligned image min/max: {aligned_image.min()}, {aligned_image.max()}")
 
 
 difference = noisy_image - aligned_image
-
+print(f"Diff sum: {difference.sum()}")
 # Display the original noisy image, shifted noisy image, and aligned noisy image
 fig, ax = plt.subplots(1, 4, figsize=(20, 5))
 ax[0].imshow(noisy_image, cmap='gray')

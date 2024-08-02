@@ -3,7 +3,7 @@ import cv2
 import os
 
 
-def save_images_from_npy(npy_file, output_dir, num_pairs=20):
+def save_images_from_npy(npy_file, output_dir, num_pairs=100):
     # Load the .npy file
     data = np.load(npy_file)
 
@@ -22,6 +22,10 @@ def save_images_from_npy(npy_file, output_dir, num_pairs=20):
         clean_img_path = os.path.join(clean_dir, f'clean_{i}.png')
         noisy_img_path = os.path.join(noisy_dir, f'noisy_{i}.png')
         aligned_noisy_img_path = os.path.join(noisy_dir, f'aligned_noisy_{i}.png')
+
+        print(f"Cleaned min/max: {clean_img.min()}, {clean_img.max()}")
+        print(f"Noisy min/max: {noisy_img.min()}, {noisy_img.max()}")
+        print(f"Aligned min/max: {aligned_noisy_img.min()}, {aligned_noisy_img.max()}")
 
         cv2.imwrite(clean_img_path, clean_img)
         cv2.imwrite(noisy_img_path, noisy_img)
