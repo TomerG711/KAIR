@@ -18,7 +18,7 @@ def dft_registration(img1, img2):
     shifts = np.array(max_idx) - np.array(r.shape) // 2
 
     # img2_shifted = np.abs(ifft2(fourier_shift(fft2(img2), shifts)))
-
+    #
     # return shifts, img2_shifted
     return shifts
 
@@ -49,7 +49,7 @@ def process_images(npy_file_path, output_npy_file_path):
 
         # _, aligned_img = dft_registration(clean_img, matching_noisy_img)
         computed_shifts = dft_registration(noisy_img, matching_noisy_img)
-        aligned_img = apply_shifts(matching_noisy_img, computed_shifts)  # Apply negative of computed shifts to align
+        aligned_img = apply_shifts(matching_noisy_img, -computed_shifts)  # Apply negative of computed shifts to align
 
         # Append each set of images as a tuple
         all_images.append((clean_img[:, :, np.newaxis], noisy_img[:, :, np.newaxis], aligned_img[:, :, np.newaxis]))

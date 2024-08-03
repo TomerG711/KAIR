@@ -76,23 +76,31 @@ def extend_dataset_with_shifts_and_augmentations(original_data, original_images,
         shifted_noisy_img = random_shift(new_noisy_img2, shift_h, shift_w)
 
         # Add the shifted augmented images to the extended data
-        augmented_clean_images = augment_image(img)
-        augmented_noisy_images = augment_image(new_noisy_img)
-        augmented_noisy_images2 = augment_image(new_noisy_img2)
-        augmented_noisy_images_shifted = augment_image(shifted_noisy_img)
-        for clean_img_shifted_aug, noisy_img_aug, noisy_img_aug2, noisy_img_shifted_aug in zip(augmented_clean_images,
-                                                                                               augmented_noisy_images,
-                                                                                               augmented_noisy_images2,
-                                                                                               augmented_noisy_images_shifted):
-            extended_data.append(
-                (
-                    clean_img_shifted_aug[:, :, np.newaxis],
-                    noisy_img_aug[:, :, np.newaxis],
-                    noisy_img_aug2[:, :, np.newaxis],
-                    noisy_img_shifted_aug[:, :, np.newaxis]))
-        # extended_data.append((img[:, :, np.newaxis], new_noisy_img[:, :, np.newaxis], new_noisy_img2[:, :, np.newaxis],
-        #                       shifted_noisy_img[:, :, np.newaxis]))
-        # true_shifts_list.append((shift_h, shift_w))
+        # augmented_clean_images = augment_image(img)
+        # augmented_noisy_images = augment_image(new_noisy_img)
+        # augmented_noisy_images2 = augment_image(new_noisy_img2)
+        # augmented_noisy_images_shifted = augment_image(shifted_noisy_img)
+        # for clean_img_shifted_aug, noisy_img_aug, noisy_img_aug2, noisy_img_shifted_aug in zip(augmented_clean_images,
+        #                                                                                        augmented_noisy_images,
+        #                                                                                        augmented_noisy_images2,
+        #                                                                                        augmented_noisy_images_shifted):
+        # for clean_img_shifted_aug, noisy_img_aug, noisy_img_aug2 in zip(augmented_clean_images,
+        #                                                                 augmented_noisy_images,
+        #                                                                 augmented_noisy_images2):
+        #     extended_data.append(
+        #         (
+        #             clean_img_shifted_aug[:, :, np.newaxis],
+        #             noisy_img_aug[:, :, np.newaxis],
+        #             noisy_img_aug2[:, :, np.newaxis],))
+        extended_data.append(
+            (
+                img[:, :, np.newaxis],
+                new_noisy_img[:, :, np.newaxis],
+                new_noisy_img2[:, :, np.newaxis],
+                shifted_noisy_img[:, :, np.newaxis]
+            )
+        )
+        true_shifts_list.append((shift_h, shift_w))
 
     return np.array(extended_data), true_shifts_list
 
@@ -124,7 +132,7 @@ original_clean_images = load_images_from_directory(clean_images_directory)
 
 # Extend the dataset
 extended_data, true_shifts_list = extend_dataset_with_shifts_and_augmentations(original_data, original_clean_images,
-                                                                               100)
+                                                                               25)
 
 # Validate the shifts and print the sum of differences between aligned and original noisy images
 # for attempt in range(10):
@@ -137,24 +145,27 @@ for idx, triplet in enumerate(extended_data):
     noisy_img = triplet[1, :, :, 0]
     noisy_img2 = triplet[2, :, :, 0]
     shifted_noisy_img = triplet[3, :, :, 0]
-    # true_shifts = true_shifts_list[idx]
+    true_shifts = true_shifts_list[idx]
 
     computed_shifts = dft_registration(noisy_img, shifted_noisy_img)
     aligned_noisy_img = apply_shifts(shifted_noisy_img, -computed_shifts)
     new_npy.append((clean_img[:, :, np.newaxis], noisy_img[:, :, np.newaxis],
                     aligned_noisy_img[:, :, np.newaxis]))
-
+    # new_npy.append((clean_img[:, :, np.newaxis], noisy_img[:, :, np.newaxis],
+    #                 noisy_img2[:, :, np.newaxis]))
+    #
     difference = np.sum(np.abs(noisy_img2 - aligned_noisy_img))
     if difference > 0:
         cnt_diff += 1
     sum_of_differences += difference
-
-    # print(f"True Shifts: {true_shifts}, Computed Shifts: {-computed_shifts}, Difference: {difference}")
+    #
+    if true_shifts[0] != -computed_shifts[0] or true_shifts[1] != -computed_shifts[1]:
+        print(f"True Shifts: {true_shifts}, Computed Shifts: {-computed_shifts}")  # , Difference: {difference}")
 # print(f"Attempt {attempt}")
-output_npy = np.array(new_npy)
-print(f"Output shape: {output_npy.shape}")
-np.save("/opt/KAIR/data/BSD68_reproducibility_data/train/DCNN400_train_gaussian25_with_shifted_and_aligned.npy",
-        output_npy)
-print(f"Sum of differences between aligned and original noisy images: {sum_of_differences}")
+# output_npy = np.array(new_npy)
+# print(f"Output shape: {output_npy.shape}")
+# np.save("/opt/KAIR/data/BSD68_reproducibility_data/train/DCNN400_train_gaussian25_with_shifted_and_aligned.npy",
+#         output_npy)
+# print(f"Sum of differences between aligned and original noisy images: {sum_of_differences}")
 print(f"Total different images: {cnt_diff}")
 # attempt += 1
