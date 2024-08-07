@@ -2,6 +2,7 @@ import os
 import numpy as np
 import cv2
 import random
+import matplotlib.pyplot as plt
 
 
 def load_npy(file_path):
@@ -109,7 +110,7 @@ def dft_registration(img1, img2):
     F1 = np.fft.fft2(img1)
     F2 = np.fft.fft2(img2)
     R = F1 * np.conj(F2)
-    R /= np.abs(R)
+    # R /= np.abs(R)
     r = np.fft.fftshift(np.fft.ifft2(R))
     max_idx = np.unravel_index(np.argmax(np.abs(r)), r.shape)
     shifts = np.array(max_idx) - np.array(r.shape) // 2
@@ -132,7 +133,7 @@ original_clean_images = load_images_from_directory(clean_images_directory)
 
 # Extend the dataset
 extended_data, true_shifts_list = extend_dataset_with_shifts_and_augmentations(original_data, original_clean_images,
-                                                                               25)
+                                                                               100)
 
 # Validate the shifts and print the sum of differences between aligned and original noisy images
 # for attempt in range(10):
@@ -157,10 +158,28 @@ for idx, triplet in enumerate(extended_data):
     difference = np.sum(np.abs(noisy_img2 - aligned_noisy_img))
     if difference > 0:
         cnt_diff += 1
+        print(f"For idx {idx} - True Shifts: {true_shifts}, Computed Shifts: {-computed_shifts}")  # , Difference: {difference}")
+
+        fig, ax = plt.subplots(1, 5, figsize=(20, 5))
+        ax[0].imshow(clean_img, cmap='gray')
+        ax[0].set_title('Clean Image')
+        ax[1].imshow(noisy_img, cmap='gray')
+        ax[1].set_title('First Noisy Image')
+        ax[2].imshow(noisy_img2, cmap='gray')
+        ax[2].set_title('Second Noisy Image')
+        ax[3].imshow(shifted_noisy_img, cmap='gray')
+        ax[3].set_title('Second Noisy Image Shifted')
+        ax[4].imshow(aligned_noisy_img, cmap='gray')
+        ax[4].set_title('Second Noisy Image Aligned')
+
+        for a in ax:
+            a.axis('off')
+
+        plt.savefig(f"/opt/KAIR/data/BSD68_reproducibility_data/train/{idx}.png")
+        plt.cla()
     sum_of_differences += difference
     #
-    if true_shifts[0] != -computed_shifts[0] or true_shifts[1] != -computed_shifts[1]:
-        print(f"True Shifts: {true_shifts}, Computed Shifts: {-computed_shifts}")  # , Difference: {difference}")
+    # if true_shifts[0] != -computed_shifts[0] or true_shifts[1] != -computed_shifts[1]:
 # print(f"Attempt {attempt}")
 # output_npy = np.array(new_npy)
 # print(f"Output shape: {output_npy.shape}")
