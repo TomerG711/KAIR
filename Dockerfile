@@ -11,6 +11,6 @@ CMD python main_train_dncnn.py
 
 #CMD python generate_shifted_images_png.py
 
-CMD sleep infinity
+#CMD sleep infinity
 # https://arxiv.org/pdf/1902.02452
 

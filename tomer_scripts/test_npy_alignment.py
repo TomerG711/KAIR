@@ -91,14 +91,14 @@ def extend_dataset_with_shifts_and_augmentations(original_data, original_images,
         #         augmented_noisy_images,
         #         augmented_noisy_images2
         # ):
-            # extended_data.append(
-            #     (
-            #         clean_img_aug[:, :, np.newaxis],
-            #         noisy_img_aug[:, :, np.newaxis],
-            #         noisy_img_aug2[:, :, np.newaxis],
-            #         noisy_img_shifted_aug[:, :, np.newaxis]
-            #     )
-            # )
+        # extended_data.append(
+        #     (
+        #         clean_img_aug[:, :, np.newaxis],
+        #         noisy_img_aug[:, :, np.newaxis],
+        #         noisy_img_aug2[:, :, np.newaxis],
+        #         noisy_img_shifted_aug[:, :, np.newaxis]
+        #     )
+        # )
         extended_data.append(
             (
                 img[:, :, np.newaxis],
@@ -197,16 +197,60 @@ for idx, triplet in enumerate(extended_data):
     sum_of_differences += difference
     #
     # if true_shifts[0] != -computed_shifts[0] or true_shifts[1] != -computed_shifts[1]:
-# print(f"Attempt {attempt}")
-output_npy = np.array(new_npy)
-print(f"Output shape: {output_npy.shape}")
-np.save("/opt/KAIR/data/BSD68_reproducibility_data/train/DCNN400_train_gaussian25_with_shifted_and_aligned.npy",
-        output_npy)
-
-all_output_npy = np.array(all_npy)
-print(f"All output shape: {all_output_npy.shape}")
-np.save("/opt/KAIR/data/BSD68_reproducibility_data/train/DCNN400_train_gaussian25_with_shifted_and_aligned_all.npy",
-        all_output_npy)
-# print(f"Sum of differences between aligned and original noisy images: {sum_of_differences}")
 print(f"Total different images: {cnt_diff}")
+if cnt_diff < 2:
+    print("Stopping due to low amount of different images")
+    exit(1)
+
+final_output_npy = []
+final_all_npy = []
+for idx, data in enumerate(np.array(all_npy)):
+    # print(data.shape)
+    clean_img = data[0, :, :, 0]
+    noisy_img = data[1, :, :, 0]
+    noisy_img2 = data[2, :, :, 0]
+    shifted_noisy_img = data[3, :, :, 0]
+    aligned_noisy_img = data[4, :, :, 0]
+
+    augmented_clean_images = augment_image(clean_img)
+    augmented_noisy_images = augment_image(noisy_img)
+    augmented_noisy_images2 = augment_image(noisy_img2)
+    augmented_noisy_images_shifted = augment_image(shifted_noisy_img)
+    augmented_aligned_noisy_images = augment_image(aligned_noisy_img)
+
+    for clean_img_aug, noisy_img_aug, noisy_img_aug2, noisy_img_shifted_aug, aligned_noisy_img_aug in zip(
+            augmented_clean_images,
+            augmented_noisy_images,
+            augmented_noisy_images2,
+            augmented_noisy_images_shifted,
+            augmented_aligned_noisy_images
+    ):
+        final_output_npy.append(
+            (
+                clean_img_aug[:, :, np.newaxis],
+                noisy_img_aug[:, :, np.newaxis],
+                aligned_noisy_img_aug[:, :, np.newaxis],
+            )
+        )
+        final_all_npy.append(
+            (
+                clean_img_aug[:, :, np.newaxis],
+                noisy_img_aug[:, :, np.newaxis],
+                noisy_img_aug2[:, :, np.newaxis],
+                noisy_img_shifted_aug[:, :, np.newaxis],
+                aligned_noisy_img_aug[:, :, np.newaxis],
+            )
+        )
+
+# print(f"Attempt {attempt}")
+final_output_npy = np.array(final_output_npy)
+print(f"Output shape: {final_output_npy.shape}")
+np.save("/opt/KAIR/data/BSD68_reproducibility_data/train/DCNN400_train_gaussian25_with_shifted_and_aligned.npy",
+        final_output_npy)
+
+final_all_npy = np.array(final_all_npy)
+print(f"All output shape: {final_all_npy.shape}")
+np.save("/opt/KAIR/data/BSD68_reproducibility_data/train/DCNN400_train_gaussian25_with_shifted_and_aligned_all.npy",
+        final_all_npy)
+# print(f"Sum of differences between aligned and original noisy images: {sum_of_differences}")
 # attempt += 1
