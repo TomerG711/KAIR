@@ -48,7 +48,7 @@ def random_shift(image, shift_h, shift_w):
     return shifted_image
 
 
-def extend_dataset_with_shifts_and_augmentations(original_data, original_images, sigma):
+def extend_dataset_with_shifts_and_augmentations(original_images, sigma):
     extended_data = []
     true_shifts_list = []
     original_noisy_non_shifted = []
@@ -129,20 +129,14 @@ def apply_shifts(image, shifts):
     return shifted_image
 
 
-# Load the original npy file
-original_npy_file = '/opt/KAIR/data/BSD68_reproducibility_data/train/DCNN400_train_gaussian25_pairs.npy'  # Replace with your npy file path
-original_data = load_npy(original_npy_file)
+# original_npy_file = '/opt/KAIR/data/BSD68_reproducibility_data/train/DCNN400_train_gaussian25_pairs.npy'
+# original_data = load_npy(original_npy_file)
 
-# Load the original clean images from the directory
-clean_images_directory = '/opt/KAIR/data/BSD68_reproducibility_data/train/gt'  # Replace with your images directory path
+clean_images_directory = '/opt/KAIR/data/BSD68_reproducibility_data/train/gt'
 original_clean_images = load_images_from_directory(clean_images_directory)
 
-# Extend the dataset
-extended_data, true_shifts_list = extend_dataset_with_shifts_and_augmentations(original_data, original_clean_images,
-                                                                               25)
+extended_data, true_shifts_list = extend_dataset_with_shifts_and_augmentations(original_clean_images, 25)
 
-# Validate the shifts and print the sum of differences between aligned and original noisy images
-# for attempt in range(10):
 new_npy = []
 all_npy = []
 sum_of_differences = 0
@@ -205,7 +199,6 @@ if cnt_diff < 2:
 final_output_npy = []
 final_all_npy = []
 for idx, data in enumerate(np.array(all_npy)):
-    # print(data.shape)
     clean_img = data[0, :, :, 0]
     noisy_img = data[1, :, :, 0]
     noisy_img2 = data[2, :, :, 0]
@@ -242,7 +235,6 @@ for idx, data in enumerate(np.array(all_npy)):
             )
         )
 
-# print(f"Attempt {attempt}")
 final_output_npy = np.array(final_output_npy)
 print(f"Output shape: {final_output_npy.shape}")
 np.save("/opt/KAIR/data/BSD68_reproducibility_data/train/DCNN400_train_gaussian25_with_shifted_and_aligned.npy",

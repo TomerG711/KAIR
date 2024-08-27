@@ -272,7 +272,6 @@ class SUREDatasetDnCNN(data.Dataset):
 
 
 class N2NDatasetDnCNN(data.Dataset):
-    # TODO: Train N2N with predefined pairs
     """
     # -----------------------------------------
     # Get L/H for denosing on AWGN with fixed sigma.
@@ -281,7 +280,7 @@ class N2NDatasetDnCNN(data.Dataset):
     # e.g., DnCNN
     # -----------------------------------------
 
-    N2V - Assume NPY of triplets:
+    N2N - Assume NPY of triplets:
         0 - clean
         1 - first noisy
         2 - aligned noisy
